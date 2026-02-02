@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗺️ Búsqueda del Tesoro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            100% { left: 100%; }
+        }
+
+        .progress-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0;
+        }
+
+        .qr-info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .message {
+            font-size: 18px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .completion {
+            display: none;
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .completion-logo {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            color: white;
+            font-size: 80px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .completion-title {
+            font-size: 32px;
+            color: #333;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .completion-message {
+            font-size: 18px;
+            color: #666;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .unique-code {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            color: #856404;
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+        }
+
+        .reset-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .qr-list {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .qr-item {
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .qr-item.found {
+            background: #d4edda;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .qr-list {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏆</div>
+        <h1>BÚSQUEDA DEL TESORO</h1>
+        <p class="subtitle">¡Encuentra los 10 QR codes por toda la ciudad!</p>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%">
+                <span id="progressText">0%</span>
+            </div>
+        </div>
+
+        <div class="progress-text">
+            <span id="foundCount">0</span>/<span id="totalCount">10</span> QR encontrados
+        </div>
+
+        <div class="qr-info" id="qrInfo">
+            ¡Escanea QR codes para descubrir el tesoro!
+        </div>
+
+        <div class="message" id="message">
+            Cada QR que encuentres te acercará más al premio final. 
+            ¡Explora la ciudad y descubre todos los códigos!
+        </div>
+
+        <div class="qr-list" id="qrList">
+            <div class="qr-item" id="qr1">QR 1</div>
+            <div class="qr-item" id="qr2">QR 2</div>
+            <div class="qr-item" id="qr3">QR 3</div>
+            <div class="qr-item" id="qr4">QR 4</div>
+            <div class="qr-item" id="qr5">QR 5</div>
+            <div class="qr-item" id="qr6">QR 6</div>
+            <div class="qr-item" id="qr7">QR 7</div>
+            <div class="qr-item" id="qr8">QR 8</div>
+            <div class="qr-item" id="qr9">QR 9</div>
+            <div class="qr-item" id="qr10">QR 10</div>
+        </div>
+
+        <div class="instructions">
+            <h3>🎯 Instrucciones:</h3>
+            <ul>
+                <li>Busca los 10 QR codes ocultos por la ciudad</li>
+                <li>Escanea cada uno con tu teléfono</li>
+                <li>¡Mira tu progreso crecer!</li>
+                <li>Al completarlos todos, recibirás tu código único</li>
+            </ul>
+        </div>
+
+        <div class="completion" id="completion">
+            <div class="completion-logo">🎁</div>
+            <h2 class="completion-title">¡FELICIDADES!</h2>
+            <p class="completion-message">
+                Has encontrado todos los QR codes. 
+                Aquí está tu código único para reclamar tu premio:
+            </p>
+            <div class="unique-code" id="uniqueCode">CARGANDO...</div>
+            <p class="completion-message">
+                Presenta este código en nuestras instalaciones para recibir tu premio.
+            </p>
+            <button class="reset-btn" onclick="resetGame()">🔄 Reiniciar Juego</button>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Tu Empresa - Búsqueda del Tesoro</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuración
+        const TOTAL_QRS = 10;
+        const VALID_QR_IDS = ['qr1', 'qr2', 'qr3', 'qr4', 'qr5', 'qr6', 'qr7', 'qr8', 'qr9', 'qr10'];
+        
+        // Elementos del DOM
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const foundCount = document.getElementById('foundCount');
+        const qrInfo = document.getElementById('qrInfo');
+        const message = document.getElementById('message');
+        const completion = document.getElementById('completion');
+        const uniqueCode = document.getElementById('uniqueCode');
+        const qrList = document.getElementById('qrList');
+
+        // Cargar datos del localStorage
+        let foundQRs = JSON.parse(localStorage.getItem('foundQRs')) || [];
+        let userCode = localStorage.getItem('userCode') || generateUniqueCode();
+
+        // Obtener parámetro de URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const qrId = urlParams.get('id');
+
+        // Verificar si se escaneó un QR válido
+        if (qrId && VALID_QR_IDS.includes(qrId)) {
+            addFoundQR(qrId);
+        }
+
+        // Actualizar la interfaz
+        updateUI();
+
+        // Función para agregar un QR encontrado
+        function addFoundQR(qrId) {
+            if (!foundQRs.includes(qrId)) {
+                foundQRs.push(qrId);
+                localStorage.setItem('foundQRs', JSON.stringify(foundQRs));
+                
+                // Mostrar mensaje de éxito
+                showNotification(`¡QR ${qrId.replace('qr', '')} encontrado! 🎉`);
+            }
+        }
+
+        // Función para actualizar la interfaz
+        function updateUI() {
+            const progress = (foundQRs.length / TOTAL_QRS) * 100;
+            
+            // Actualizar barra de progreso
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+            foundCount.textContent = foundQRs.length;
+            
+            // Actualizar lista de QRs
+            VALID_QR_IDS.forEach(id => {
+                const element = document.getElementById(id);
+                if (foundQRs.includes(id)) {
+                    element.classList.add('found');
+                    element.innerHTML = `✓ QR ${id.replace('qr', '')}`;
+                }
+            });
+            
+            // Actualizar mensaje según progreso
+            if (foundQRs.length === 0) {
+                qrInfo.textContent = '¡Comienza tu aventura! Busca el primer QR';
+                message.textContent = 'Explora la ciudad y encuentra todos los códigos QR ocultos.';
+            } else if (foundQRs.length < TOTAL_QRS) {
+                qrInfo.textContent = `¡Excelente! Has encontrado ${foundQRs.length} de ${TOTAL_QRS} QRs`;
+                message.textContent = `Te faltan ${TOTAL_QRS - foundQRs.length} QRs para completar la búsqueda del tesoro.`;
+            }
+            
+            // Mostrar pantalla de completado si se encontraron todos
+            if (foundQRs.length === TOTAL_QRS) {
+                showCompletion();
+            }
+        }
+
+        // Función para mostrar pantalla de completado
+        function showCompletion() {
+            // Guardar el código único del usuario
+            localStorage.setItem('userCode', userCode);
+            
+            // Mostrar pantalla de completado
+            completion.style.display = 'block';
+            qrInfo.style.display = 'none';
+            message.style.display = 'none';
+            qrList.style.display = 'none';
+            
+            // Mostrar código único
+            uniqueCode.textContent = userCode;
+            
+            // Mostrar mensaje de celebración
+            showNotification('¡Búsqueda completada! 🏆', true);
+        }
+
+        // Función para generar código único
+        function generateUniqueCode() {
+            const timestamp = Date.now().toString(36);
+            const random = Math.random().toString(36).substring(2, 8);
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            return `TREASURE-${randomLetter}${timestamp.toUpperCase().substring(4)}${random.toUpperCase()}`;
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, isSuccess = false) {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.background = isSuccess ? '#d4edda' : '#d1ecf1';
+            notification.style.color = isSuccess ? '#155724' : '#0c5460';
+            notification.style.padding = '15px 30px';
+            notification.style.borderRadius = '25px';
+            notification.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            notification.style.zIndex = '1000';
+            notification.style.fontSize = '16px';
+            notification.style.fontWeight = 'bold';
+            notification.style.animation = 'slideIn 0.3s, fadeOut 0.5s 2.5s forwards';
+            
+            document.body.appendChild(notification);
+            
+            // Eliminar después de 3 segundos
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Función para reiniciar el juego
+        function resetGame() {
+            if (confirm('¿Estás seguro de que quieres reiniciar la búsqueda del tesoro?')) {
+                localStorage.removeItem('foundQRs');
+                localStorage.removeItem('userCode');
+                foundQRs = [];
+                userCode = generateUniqueCode();
+                location.reload();
+            }
+        }
+
+        // Animaciones CSS para notificaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(-50%) translateY(-100px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(-50%) translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
